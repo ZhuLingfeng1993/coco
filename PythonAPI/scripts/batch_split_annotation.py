@@ -10,7 +10,7 @@ CAFFE_ROOT = "{}/software/caffe-ssd-zlf".format(HOMEDIR)
 # If true, redo the whole thing.
 redo = True
 # The root directory which stores the coco images, annotations, etc.
-coco_data_dir = "/media/od/0d139e25-7476-42eb-82e1-fc2ea3b0829c/home/freespace/zlf/COCO"
+coco_data_dir = "/media/od/0d139e25-7476-42eb-82e1-fc2ea3b0829c/home/freespace/zlf/COCO/COCO_Cat6"
 #coco_data_dir = "{}/data/coco".format(HOMEDIR)
 # The sets that we want to split. These can be downloaded at: http://mscoco.org
 # Unzip all the files after download.

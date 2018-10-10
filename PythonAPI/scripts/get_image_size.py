@@ -36,7 +36,12 @@ if __name__ == "__main__":
         imgs = dict()
         
         # use all data
-        img_ids = coco.getImgIds()
+        #img_ids = coco.getImgIds()
+    
+        # use data contains at least one of given category 
+        catNms = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'truck']
+        catIds = coco.getCatIds(catNms=catNms);
+        img_ids = coco.getImgIdsUnion(catIds=catIds );#get img id that contains at least one of given category
     
         for img_id in img_ids:
             # get image info

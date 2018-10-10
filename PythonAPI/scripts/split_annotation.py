@@ -37,8 +37,14 @@ if __name__ == "__main__":
     coco = COCO(annofile)
     
     # use all data
-    img_ids = coco.getImgIds()
+    #img_ids = coco.getImgIds()
     
+    # use data contains at least one of given category 
+    catNms = ['person','bicycle','car','motorcycle','bus','truck']
+    catIds = coco.getCatIds(catNms=catNms);
+    img_ids = coco.getImgIdsUnion(catIds=catIds);#get img id that contains at least one of given category
+    print('len(catIds) = %d' % len(catIds))
+    print('len(img_ids = %d' % len(img_ids))
     img_names = []
     for img_id in img_ids:
         # get image info
