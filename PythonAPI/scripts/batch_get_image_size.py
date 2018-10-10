@@ -9,11 +9,11 @@ CURDIR = os.path.dirname(os.path.realpath(__file__))
 # If true, redo the whole thing.
 redo = True
 # The caffe root.
-CAFFE_ROOT = "{}/projects/caffe".format(HOMEDIR)
+CAFFE_ROOT = "{}/software/caffe-ssd-zlf".format(HOMEDIR)
 # The root directory which stores the coco images, annotations, etc.
-coco_data_dir = "{}/data/coco".format(HOMEDIR)
+coco_data_dir = "/media/od/0d139e25-7476-42eb-82e1-fc2ea3b0829c/home/freespace/zlf/COCO"
 # The sets that we want to get the size info.
-anno_sets = ["image_info_test-dev2015", "instances_minival2014"]
+anno_sets = ["image_info_test-dev2017", "instances_val2017"]
 # The directory which contains the full annotation files for each set.
 anno_dir = "{}/annotations".format(coco_data_dir)
 # The directory which stores the imageset information for each set.

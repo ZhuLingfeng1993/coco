@@ -4,20 +4,22 @@ import sys
 
 HOMEDIR = os.path.expanduser("~")
 CURDIR = os.path.dirname(os.path.realpath(__file__))
+CAFFE_ROOT = "{}/software/caffe-ssd-zlf".format(HOMEDIR)
 
 ### Modify the address and parameters accordingly ###
 # If true, redo the whole thing.
 redo = True
 # The root directory which stores the coco images, annotations, etc.
-coco_data_dir = "{}/data/coco".format(HOMEDIR)
+coco_data_dir = "/media/od/0d139e25-7476-42eb-82e1-fc2ea3b0829c/home/freespace/zlf/COCO"
+#coco_data_dir = "{}/data/coco".format(HOMEDIR)
 # The sets that we want to split. These can be downloaded at: http://mscoco.org
 # Unzip all the files after download.
-anno_sets = ["image_info_test2014", "image_info_test2015", "image_info_test-dev2015",
-        "instances_val2014", "instances_train2014"]
+anno_sets = ["image_info_test2017", "image_info_test-dev2017",
+        "instances_val2017", "instances_train2017"]
 # These are the sets that used in ION by Sean Bell and Ross Girshick.
 # These can be downloaded at: https://github.com/rbgirshick/py-faster-rcnn/tree/master/data
 # Unzip all the files after download. And move them to annotations/ directory.
-anno_sets = anno_sets + ["instances_minival2014", "instances_valminusminival2014"]
+#anno_sets = anno_sets + ["instances_minival2014", "instances_valminusminival2014"]
 # The directory which contains the full annotation files for each set.
 anno_dir = "{}/annotations".format(coco_data_dir)
 # The root directory which stores the annotation for each image for each set.

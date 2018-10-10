@@ -34,7 +34,10 @@ if __name__ == "__main__":
             os.makedirs(name_size_dir)
         # Read image info.
         imgs = dict()
+        
+        # use all data
         img_ids = coco.getImgIds()
+    
         for img_id in img_ids:
             # get image info
             img = coco.loadImgs(img_id)[0]

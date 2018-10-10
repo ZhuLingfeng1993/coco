@@ -35,8 +35,10 @@ if __name__ == "__main__":
 
     # initialize COCO api.
     coco = COCO(annofile)
-
+    
+    # use all data
     img_ids = coco.getImgIds()
+    
     img_names = []
     for img_id in img_ids:
         # get image info
