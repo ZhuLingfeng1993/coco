@@ -23,7 +23,7 @@ anno_sets = ["image_info_test2017", "image_info_test-dev2017",
 # The directory which contains the full annotation files for each set.
 anno_dir = "{}/annotations".format(coco_data_dir)
 # The root directory which stores the annotation for each image for each set.
-out_anno_dir = "{}/Annotations".format(coco_data_dir)
+# out_anno_dir = "{}/Annotations".format(coco_data_dir)
 # The directory which stores the imageset information for each set.
 imgset_dir = "{}/ImageSets".format(coco_data_dir)
 
