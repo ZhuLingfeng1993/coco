@@ -333,6 +333,7 @@ class COCOeval:
         A           = len(p.areaRng)
         M           = len(p.maxDets)
         precision   = -np.ones((T,R,K,A,M)) # -1 for the precision of absent categories
+        final_precision   = -np.ones((T,K,A,M))
         recall      = -np.ones((T,K,A,M))
         scores      = -np.ones((T,R,K,A,M))
 
@@ -388,18 +389,23 @@ class COCOeval:
                         ss = np.zeros((R,))
 
                         if nd:
+                            final_precision[t,k,a,m] = pr[-1]
                             recall[t,k,a,m] = rc[-1]
                         else:
+                            final_precision[t,k,a,m] = 0
                             recall[t,k,a,m] = 0
 
                         # numpy is slow without cython optimization for accessing elements
                         # use python array gets significant speed improvement
                         pr = pr.tolist(); q = q.tolist()
 
+                        # Equivalent to getting max precision corresponding to any rec' > rec, which makes
+                        # precision/recall curve non-strict-decline.
                         for i in range(nd-1, 0, -1):
                             if pr[i] > pr[i-1]:
                                 pr[i-1] = pr[i]
 
+                        # set q as precisions with same indices as p.recThrs in rc.
                         inds = np.searchsorted(rc, p.recThrs, side='left')
                         try:
                             for ri, pi in enumerate(inds):
@@ -414,21 +420,30 @@ class COCOeval:
             'counts': [T, R, K, A, M],
             'date': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'precision': precision,
-            'recall':   recall,
+            'recall':   recall, # recall when treat all detections as positives.
             'scores': scores,
+            'final_precision': final_precision, # precision when treat all detections as positives.
         }
         toc = time.time()
         print('DONE (t={:0.2f}s).'.format( toc-tic))
 
-    def summarize(self):
+    def summarize(self, final_pr=False):
         '''
         Compute and display summary metrics for evaluation results.
         Note this functin can *only* be applied on the default parameter setting
         '''
-        def _summarize( ap=1, iouThr=None, areaRng='all', maxDets=100 ):
+        def _summarize(ap=1, iouThr=None, areaRng='all', maxDets=100, final_pr=False):
+            """
+            :param ap: get ap or ar. When final_pr = True, get final precision or recall.
+            :param final_pr: get precision or recall when treat all detections as positives.
+            :return: metic score value
+            """
             p = self.params
             iStr = ' {:<18} {} @[ IoU={:<9} | area={:>6s} | maxDets={:>3d} ] = {:0.3f}'
             titleStr = 'Average Precision' if ap == 1 else 'Average Recall'
+            if final_pr:
+                iStr = iStr + "/{:0.3f}"
+                titleStr = 'Final Precision/Recall'
             typeStr = '(AP)' if ap==1 else '(AR)'
             iouStr = '{:0.2f}:{:0.2f}'.format(p.iouThrs[0], p.iouThrs[-1]) \
                 if iouThr is None else '{:0.2f}'.format(iouThr)
@@ -443,33 +458,56 @@ class COCOeval:
                     t = np.where(iouThr == p.iouThrs)[0]
                     s = s[t]
                 s = s[:,:,:,aind,mind]
-            else:
+
+            if ap == 0:
                 # dimension of recall: [TxKxAxM]
                 s = self.eval['recall']
                 if iouThr is not None:
                     t = np.where(iouThr == p.iouThrs)[0]
                     s = s[t]
                 s = s[:,:,aind,mind]
-            if len(s[s>-1])==0:
-                mean_s = -1
+
+            if not final_pr:
+                if len(s[s>-1])==0:
+                    mean_s = -1
+                else:
+                    mean_s = np.mean(s[s>-1])
+                print(iStr.format(titleStr, typeStr, iouStr, areaRng, maxDets, mean_s))
+                return mean_s
             else:
-                mean_s = np.mean(s[s>-1])
-            print(iStr.format(titleStr, typeStr, iouStr, areaRng, maxDets, mean_s))
-            return mean_s
+                res_key = ['final_precision', 'recall']
+                res = [0, 0]
+                for i, key in enumerate(res_key):
+                    # dimension of precision: [TxKxAxM]
+                    s = self.eval[key]
+                    if iouThr is not None:
+                        t = np.where(iouThr == p.iouThrs)[0]
+                        s = s[t]
+                    s = s[:,:,aind,mind]
+                    if len(s[s>-1])==0:
+                        mean_s = -1
+                    else:
+                        mean_s = np.mean(s[s>-1])
+                    res[i] = mean_s
+                print(iStr.format(titleStr, "", iouStr, areaRng, maxDets, res[0], res[1]))
         def _summarizeDets():
-            stats = np.zeros((12,))
-            stats[0] = _summarize(1)
-            stats[1] = _summarize(1, iouThr=.5, maxDets=self.params.maxDets[2])
-            stats[2] = _summarize(1, iouThr=.75, maxDets=self.params.maxDets[2])
-            stats[3] = _summarize(1, areaRng='small', maxDets=self.params.maxDets[2])
-            stats[4] = _summarize(1, areaRng='medium', maxDets=self.params.maxDets[2])
-            stats[5] = _summarize(1, areaRng='large', maxDets=self.params.maxDets[2])
-            stats[6] = _summarize(0, maxDets=self.params.maxDets[0])
-            stats[7] = _summarize(0, maxDets=self.params.maxDets[1])
-            stats[8] = _summarize(0, maxDets=self.params.maxDets[2])
-            stats[9] = _summarize(0, areaRng='small', maxDets=self.params.maxDets[2])
-            stats[10] = _summarize(0, areaRng='medium', maxDets=self.params.maxDets[2])
-            stats[11] = _summarize(0, areaRng='large', maxDets=self.params.maxDets[2])
+            if final_pr:
+                stats = np.zeros((6,))
+            else:
+                stats = np.zeros((12,))
+            stats[0] = _summarize(1, final_pr=final_pr)
+            stats[1] = _summarize(1, iouThr=.5, maxDets=self.params.maxDets[2], final_pr=final_pr)
+            stats[2] = _summarize(1, iouThr=.75, maxDets=self.params.maxDets[2], final_pr=final_pr)
+            stats[3] = _summarize(1, areaRng='small', maxDets=self.params.maxDets[2],final_pr=final_pr)
+            stats[4] = _summarize(1, areaRng='medium', maxDets=self.params.maxDets[2], final_pr=final_pr)
+            stats[5] = _summarize(1, areaRng='large', maxDets=self.params.maxDets[2], final_pr=final_pr)
+            if not final_pr:
+                stats[6] = _summarize(0, maxDets=self.params.maxDets[0])
+                stats[7] = _summarize(0, maxDets=self.params.maxDets[1])
+                stats[8] = _summarize(0, maxDets=self.params.maxDets[2])
+                stats[9] = _summarize(0, areaRng='small', maxDets=self.params.maxDets[2])
+                stats[10] = _summarize(0, areaRng='medium', maxDets=self.params.maxDets[2])
+                stats[11] = _summarize(0, areaRng='large', maxDets=self.params.maxDets[2])
             return stats
         def _summarizeKps():
             stats = np.zeros((10,))
