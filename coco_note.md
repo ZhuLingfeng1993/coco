@@ -2,6 +2,18 @@
 
 官网很难访问, 可以下载 [github代码](https://github.com/cocodataset/cocodataset.github.io), 从而快速浏览网页内容
 
+### Detection Evaluation
+
+详见官方文档和代码注释
+
+- evaluation parameters中的"recThrs": [0:.01:1] R=101 recall thresholds for evaluation
+
+  这些recalls用于对precisions进行采样，从而计算AP，原理与11点插值类似，不过默认情况下取的点更多
+
+- Average Recall (AR): AR is the maximum recall given a fixed number of detections per image
+
+  在evaluation parameters"maxDets": [1 10 100] M=3 thresholds on max detections per image下，将检测的所有结果当做positive时，得到的Recall
+
 ### Tools
 
 COCO API
