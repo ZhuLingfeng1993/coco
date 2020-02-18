@@ -1,10 +1,28 @@
 # COCO
 
+## 官方文档
+
 官网很难访问, 可以下载 [github代码](https://github.com/cocodataset/cocodataset.github.io), 从而快速浏览网页内容
 
-### Tools
+## Detection Evaluation
 
-COCO API
+详见官方文档和代码注释
+
+部分评价参数说明：
+
+- evaluation parameters中的"recThrs": [0:.01:1] R=101 recall thresholds for evaluation
+
+  这些recalls用于对precisions进行采样，从而计算AP，原理与11点插值类似，不过默认情况下取的点更多
+
+- Average Recall (AR): AR is the maximum recall given a fixed number of detections per image
+
+  在evaluation parameters"maxDets": [1 10 100] M=3 thresholds on max detections per image下，将检测的所有结果当做positive时，得到的Recall
+
+新增功能：
+
+- COCOEval.summarize: 各类别独立评价和评价precisoin/recall, 详见代码注释
+
+## Dataset
 
 ### Images
 
@@ -40,16 +58,16 @@ Note that the 2017 train/val data includes the same images as the 2014 train/val
 
 we note that 2017 dev / challenge splits contain the same images as the 2015 dev / challenge splits so results across years are directly comparable.
 
-###### Test-Dev:
+**Test-Dev:**
 
 The test-dev split is the default test data for testing under general circumstances. Results in papers should generally be reported on test-dev to allow for fair public comparison. 
 
-###### Test-Challenge:
+**Test-Challenge:**
 
 The test-challenge split is used for COCO challenges hosted on a yearly basis. Results are revealed during the relevant workshop (typically at ECCV or ICCV). 
 
 The images belonging to each split are defined in image_info_test-dev2017 (for test-dev) and image_info_test2017 (for combined test-dev and test-challenge).
 
-### 2015 Test Set Splits
+**2015 Test Set Splits**
 
 This test set was used for 2015 and 2016 detection and keypoint challenges. *It is no longer used and the evaluation servers are closed*.
