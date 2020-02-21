@@ -75,6 +75,7 @@ class COCOeval:
         self.params = Params(iouType=iouType) # parameters
         self._paramsEval = {}               # parameters for evaluation
         self.stats = []                     # result summarization
+        self.category_stats = [[]]          # per category result summarization
         self.ious = {}                      # ious between all gts and dts
         if not cocoGt is None:
             self.params.imgIds = sorted(cocoGt.getImgIds())
@@ -426,14 +427,17 @@ class COCOeval:
         toc = time.time()
         print('DONE (t={:0.2f}s).'.format( toc-tic))
 
-    def summarize(self, final_pr=False):
+    def summarize(self, per_category=False, final_pr=False):
         '''
         Compute and display summary metrics for evaluation results.
         Note this functin can *only* be applied on the default parameter setting
+        :param per_category: Summarize mean of all category then summarize each category independently.
+        :param final_pr: Summarize precision and recall by treating all detections as positives.
         '''
-        def _summarize(ap=1, iouThr=None, areaRng='all', maxDets=100, final_pr=False):
+        def _summarize(ap=1, iouThr=None, areaRng='all', maxDets=100, kind=-1, final_pr=False):
             """
             :param ap: get ap or ar. When final_pr = True, get final precision or recall.
+            :param kind: index of category. Note it is different from category id.
             :param final_pr: get precision or recall when treat all detections as positives.
             :return: metic score value
             """
@@ -449,24 +453,28 @@ class COCOeval:
 
             aind = [i for i, aRng in enumerate(p.areaRngLbl) if aRng == areaRng]
             mind = [i for i, mDet in enumerate(p.maxDets) if mDet == maxDets]
-            if ap == 1:
-                # dimension of precision: [TxRxKxAxM]
-                s = self.eval['precision']
-                # IoU
-                if iouThr is not None:
-                    t = np.where(iouThr == p.iouThrs)[0]
-                    s = s[t]
-                s = s[:,:,:,aind,mind]
-
-            if ap == 0:
-                # dimension of recall: [TxKxAxM]
-                s = self.eval['recall']
-                if iouThr is not None:
-                    t = np.where(iouThr == p.iouThrs)[0]
-                    s = s[t]
-                s = s[:,:,aind,mind]
 
             if not final_pr:
+                if ap == 1:
+                    # dimension of precision: [TxRxKxAxM]
+                    s = self.eval['precision']
+                    # IoU
+                    if iouThr is not None:
+                        t = np.where(iouThr == p.iouThrs)[0]
+                        s = s[t]
+                    s = s[:, :, :, aind, mind]
+                    if kind != -1:
+                        s = s[:, :, kind]
+
+                if ap == 0:
+                    # dimension of recall: [TxKxAxM]
+                    s = self.eval['recall']
+                    if iouThr is not None:
+                        t = np.where(iouThr == p.iouThrs)[0]
+                        s = s[t]
+                    s = s[:, :, aind, mind]
+                    if kind != -1:
+                        s = s[:, kind]
                 if len(s[s>-1])==0:
                     mean_s = -1
                 else:
@@ -483,30 +491,44 @@ class COCOeval:
                         t = np.where(iouThr == p.iouThrs)[0]
                         s = s[t]
                     s = s[:,:,aind,mind]
+                    if kind != -1:
+                        s = s[:, kind]
                     if len(s[s>-1])==0:
                         mean_s = -1
                     else:
                         mean_s = np.mean(s[s>-1])
                     res[i] = mean_s
                 print(iStr.format(titleStr, "", iouStr, areaRng, maxDets, res[0], res[1]))
-        def _summarizeDets():
+        def _summarizeDets(kind=-1):
+            """
+            :param kind: index of category. Note it is different from category id.
+            :return:
+            """
             if final_pr:
                 stats = np.zeros((6,))
             else:
                 stats = np.zeros((12,))
-            stats[0] = _summarize(1, final_pr=final_pr)
-            stats[1] = _summarize(1, iouThr=.5, maxDets=self.params.maxDets[2], final_pr=final_pr)
-            stats[2] = _summarize(1, iouThr=.75, maxDets=self.params.maxDets[2], final_pr=final_pr)
-            stats[3] = _summarize(1, areaRng='small', maxDets=self.params.maxDets[2],final_pr=final_pr)
-            stats[4] = _summarize(1, areaRng='medium', maxDets=self.params.maxDets[2], final_pr=final_pr)
-            stats[5] = _summarize(1, areaRng='large', maxDets=self.params.maxDets[2], final_pr=final_pr)
+            stats[0] = _summarize(1, kind=kind, final_pr=final_pr)
+            stats[1] = _summarize(1, iouThr=.5, maxDets=self.params.maxDets[2], kind=kind,
+                                  final_pr=final_pr)
+            stats[2] = _summarize(1, iouThr=.75, maxDets=self.params.maxDets[2],
+                                  kind=kind, final_pr=final_pr)
+            stats[3] = _summarize(1, areaRng='small', maxDets=self.params.maxDets[2],
+                                  kind=kind, final_pr=final_pr)
+            stats[4] = _summarize(1, areaRng='medium', maxDets=self.params.maxDets[2],
+                                  kind=kind, final_pr=final_pr)
+            stats[5] = _summarize(1, areaRng='large', maxDets=self.params.maxDets[2],
+                                  kind=kind, final_pr=final_pr)
             if not final_pr:
-                stats[6] = _summarize(0, maxDets=self.params.maxDets[0])
-                stats[7] = _summarize(0, maxDets=self.params.maxDets[1])
-                stats[8] = _summarize(0, maxDets=self.params.maxDets[2])
-                stats[9] = _summarize(0, areaRng='small', maxDets=self.params.maxDets[2])
-                stats[10] = _summarize(0, areaRng='medium', maxDets=self.params.maxDets[2])
-                stats[11] = _summarize(0, areaRng='large', maxDets=self.params.maxDets[2])
+                stats[6] = _summarize(0, maxDets=self.params.maxDets[0], kind=kind)
+                stats[7] = _summarize(0, maxDets=self.params.maxDets[1], kind=kind)
+                stats[8] = _summarize(0, maxDets=self.params.maxDets[2], kind=kind)
+                stats[9] = _summarize(0, areaRng='small', maxDets=self.params.maxDets[2],
+                                      kind=kind)
+                stats[10] = _summarize(0, areaRng='medium',
+                                       maxDets=self.params.maxDets[2], kind=kind)
+                stats[11] = _summarize(0, areaRng='large', maxDets=self.params.maxDets[2],
+                                       kind=kind)
             return stats
         def _summarizeKps():
             stats = np.zeros((10,))
@@ -529,6 +551,18 @@ class COCOeval:
         elif iouType == 'keypoints':
             summarize = _summarizeKps
         self.stats = summarize()
+        # per category summarize
+        if per_category and summarize == _summarizeDets:
+            if len(self.params.catIds) != self.eval["recall"].shape[1]:
+                raise Exception("Please make sure no duplicates in param.catIds")
+            cat_stats = np.zeros((len(self.params.catIds), len(self.stats)))
+            for i, catId in enumerate(self.params.catIds):
+                print("\n")
+                print("######## Eval category: {}, id = {} ########".format(
+                    self.cocoGt.getCatName(catId), catId))
+                cat_stats[i] = summarize(i)
+            cat_stats.transpose()
+            self.category_stats = cat_stats
 
     def __str__(self):
         self.summarize()
