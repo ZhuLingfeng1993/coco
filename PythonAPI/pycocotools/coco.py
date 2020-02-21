@@ -176,6 +176,14 @@ class COCO:
         ids = [cat['id'] for cat in cats]
         return ids
 
+    def getCatName(self, catId):
+        name = ""
+        for cat in self.dataset['categories']:
+            if catId == cat['id']:
+                name = cat['name']
+                return name
+        assert name != ""
+
     def getImgIds(self, imgIds=[], catIds=[]):
         '''
         Get img ids that satisfy given filter conditions.
