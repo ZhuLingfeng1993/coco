@@ -1,0 +1,87 @@
+{
+  "info": {},
+  "images": [
+    {
+      "id": 1,
+      "width": 1000,
+      "height": 800
+    },
+    {
+      "id": 2,
+      "width": 1000,
+      "height": 800
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "cat1",
+      "supercategory": ""
+    },
+    {
+      "id": 2,
+      "name": "cat2",
+      "supercategory": ""
+    }
+  ],
+  "annotations": [
+    {
+      "id": 1,
+      "image_id": 1,
+      "category_id": 1,
+      "segmentation": [],
+      "area": 600,
+      "iscrowd": 0,
+      "bbox": [
+        0,
+        0,
+        20,
+        30
+      ]
+    },
+    {
+      "id": 2,
+      "image_id": 1,
+      "category_id": 1,
+      "segmentation": [],
+      "area": 3000,
+      "iscrowd": 0,
+      "bbox": [
+        100,
+        100,
+        50,
+        60
+      ]
+    },
+    {
+      "id": 4,
+      "image_id": 1,
+      "category_id": 1,
+      "segmentation": [],
+      "area": 10000,
+      "iscrowd": 0,
+      "bbox": [
+        200,
+        200,
+        100,
+        100
+      ]
+    },
+    {
+      "id": 3,
+      "image_id": 2,
+      "category_id": 2,
+      "segmentation": [],
+      "area": 20000,
+      "iscrowd": 0,
+      "bbox": [
+        200,
+        200,
+        100,
+        200
+      ]
+    }
+  ],
+  "licenses": {
+  }
+}
