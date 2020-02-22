@@ -15,3 +15,4 @@ PythonAPI/pycocotools/cocoeval.pyc
 PythonAPI/pycocotools/mask.pyc
 PythonAPI/build
 PythonAPI/.ipynb_checkpoints
+PythonAPI/.idea/
