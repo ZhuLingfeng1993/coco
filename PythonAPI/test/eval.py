@@ -3,13 +3,16 @@
 # -----------------------------------------------------
 # Written by Zhu Lingfeng on 2020/2/21.
 # -----------------------------------------------------
+import sys
+
+sys.path.insert(0, sys.path[0] + '/..')
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 
 annType = ['segm', 'bbox', 'keypoints']
 annType = annType[1]  # specify type here
 prefix = 'person_keypoints' if annType == 'keypoints' else 'instances'
-print 'Running demo for *%s* results.' % (annType)
+print('Running demo for *%s* results.'.format(annType))
 
 # initialize COCO ground truth api
 annFile = 'test_set.json'
