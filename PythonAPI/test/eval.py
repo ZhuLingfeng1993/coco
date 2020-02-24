@@ -3,6 +3,9 @@
 # -----------------------------------------------------
 # Written by Zhu Lingfeng on 2020/2/21.
 # -----------------------------------------------------
+import sys
+
+sys.path.insert(0, sys.path[0] + '/..')
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 
