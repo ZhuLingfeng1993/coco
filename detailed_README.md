@@ -18,10 +18,6 @@
 
   在evaluation parameters"maxDets": [1 10 100] M=3 thresholds on max detections per image下，将检测的所有结果当做positive时，得到的Recall
 
-新增功能：
-
-- COCOEval.summarize: 各类别独立评价和评价precisoin/recall, 详见代码注释
-
 ## Dataset
 
 ### Images
