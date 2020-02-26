@@ -30,7 +30,7 @@
       "image_id": 1,
       "category_id": 1,
       "segmentation": [],
-      "area": 600,
+      "area": 0,
       "iscrowd": 0,
       "bbox": [
         0,
@@ -44,7 +44,7 @@
       "image_id": 1,
       "category_id": 1,
       "segmentation": [],
-      "area": 3000,
+      "area": 0,
       "iscrowd": 0,
       "bbox": [
         100,
@@ -58,7 +58,7 @@
       "image_id": 1,
       "category_id": 1,
       "segmentation": [],
-      "area": 10000,
+      "area": 0,
       "iscrowd": 0,
       "bbox": [
         200,
@@ -72,7 +72,7 @@
       "image_id": 2,
       "category_id": 2,
       "segmentation": [],
-      "area": 20000,
+      "area": 0,
       "iscrowd": 0,
       "bbox": [
         200,
