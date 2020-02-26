@@ -281,7 +281,7 @@ class COCO:
             colors = plt.cm.hsv(np.linspace(0, 1, 91)).tolist()
             for ann in anns:
                 c = (np.random.random((1, 3))*0.6+0.4).tolist()[0]
-                if 'segmentation' in ann:
+                if 'segmentation' in ann and ann['segmentation'] != [[]]:
                     if type(ann['segmentation']) == list:
                         # polygon
                         for seg in ann['segmentation']:
