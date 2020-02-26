@@ -280,7 +280,7 @@ class COCO:
             color = []
             for ann in anns:
                 c = (np.random.random((1, 3))*0.6+0.4).tolist()[0]
-                if 'segmentation' in ann:
+                if 'segmentation' in ann and ann['segmentation'] != [[]]:
                     if type(ann['segmentation']) == list:
                         # polygon
                         for seg in ann['segmentation']:
