@@ -17,6 +17,8 @@ print('Running demo for *%s* results.'.format(annType))
 # initialize COCO ground truth api
 annFile = 'test_set.json'
 cocoGt = COCO(annFile)
+# Compute area if area is not set in annotations.
+cocoGt.computeArea()
 # initialize COCO detections api
 resFile = 'test_set_results.json'
 cocoDt = cocoGt.loadRes(resFile)

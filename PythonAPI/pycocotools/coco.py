@@ -118,6 +118,13 @@ class COCO:
         self.imgs = imgs
         self.cats = cats
 
+    def computeArea(self):
+        for key, ann in self.anns.items():
+            if 'area' in ann:
+                bbox = ann['bbox']
+                ann['area'] = bbox[2]*bbox[3]
+                self.anns[ann['id']] = ann
+
     def info(self):
         """
         Print information about the annotation file.
