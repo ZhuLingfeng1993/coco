@@ -16,3 +16,4 @@ PythonAPI/pycocotools/mask.pyc
 PythonAPI/build
 PythonAPI/.ipynb_checkpoints
 PythonAPI/.idea/
+PythonAPI/*/*.pyc

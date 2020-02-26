@@ -8,6 +8,7 @@ import sys
 sys.path.insert(0, sys.path[0] + '/..')
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
+from traffic_light.traffic_light import *
 
 annType = ['segm', 'bbox', 'keypoints']
 annType = annType[1]  # specify type here
@@ -25,6 +26,8 @@ cocoDt = cocoGt.loadRes(resFile)
 # running evaluation
 cocoEval = COCOeval(cocoGt, cocoDt, annType)
 # cocoEval.params.imgIds  = imgIds
+# cocoEval.params.catIds = cocoGt.getCatIds(catNms=generate_tfl_categories())
+cocoEval.params.catIds = cocoGt.getCatIds(catNms=generate_tfl_categories() + ['cat1'])
 
 cocoEval.evaluate()
 cocoEval.accumulate()
