@@ -3,13 +3,15 @@
   "images": [
     {
       "id": 1,
-      "width": 1000,
-      "height": 800
+      "width": 1280,
+      "height":960,
+      "file_name": "test.jpg"
     },
     {
       "id": 2,
-      "width": 1000,
-      "height": 800
+      "width": 1280,
+      "height":960,
+      "file_name": "test.jpg"
     }
   ],
   "categories": [
