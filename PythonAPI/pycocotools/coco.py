@@ -323,12 +323,26 @@ class COCO:
                     plt.plot(x[v>0], y[v>0],'o',markersize=8, markerfacecolor=c, markeredgecolor='k',markeredgewidth=2)
                     plt.plot(x[v>1], y[v>1],'o',markersize=8, markerfacecolor=c, markeredgecolor=c, markeredgewidth=2)
 
-                if draw_bbox:
-                    [bbox_x, bbox_y, bbox_w, bbox_h] = ann['bbox']
-                    poly = [[bbox_x, bbox_y], [bbox_x, bbox_y+bbox_h], [bbox_x+bbox_w, bbox_y+bbox_h], [bbox_x+bbox_w, bbox_y]]
-                    np_poly = np.array(poly).reshape((4,2))
-                    polygons.append(Polygon(np_poly))
-                    color.append(c)
+                if draw_bbox and 'bbox' in ann:
+                    cat_id = ann['category_id']
+                    bbox = ann['bbox']
+                    coords = (bbox[0], bbox[1]), bbox[2], bbox[3]
+                    ax.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=c, linewidth=3))
+                    name = 'Unknown'
+                    for cat in self.dataset['categories']:
+                        if ann['category_id'] == cat['id']:
+                            name = cat['name']
+                    if 'score' in ann:
+                        score = ann['score']
+                        display_text = '%s: %.2f' % (name, score)
+                    else:
+                        display_text = name
+                    ax.text(bbox[0], bbox[1], display_text, bbox={'facecolor':c, 'alpha':0.5})
+                    # [bbox_x, bbox_y, bbox_w, bbox_h] = ann['bbox']
+                    # poly = [[bbox_x, bbox_y], [bbox_x, bbox_y+bbox_h], [bbox_x+bbox_w, bbox_y+bbox_h], [bbox_x+bbox_w, bbox_y]]
+                    # np_poly = np.array(poly).reshape((4,2))
+                    # polygons.append(Polygon(np_poly))
+                    # color.append(c)
 
             p = PatchCollection(polygons, facecolor=color, linewidths=0, alpha=0.4)
             ax.add_collection(p)
