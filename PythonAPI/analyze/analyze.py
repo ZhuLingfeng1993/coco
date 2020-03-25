@@ -34,9 +34,10 @@ annIds = coco.getAnnIds(catIds=catIds)
 anns = coco.loadAnns(annIds)
 
 # get category dict data
+cat_num_dict = {}
 cat_aspect_ratios_dict = {}  # aspect_ratio = width/height
 cat_areas_dict = {}
-cat_num_dict = {}
+cat_bbox_dict = {}
 for anno in anns:
     catId = anno['category_id']
     bbox = anno['bbox']
@@ -44,10 +45,12 @@ for anno in anns:
         cat_num_dict[catId] = 1
         cat_aspect_ratios_dict[catId] = []
         cat_areas_dict[catId] = []
+        cat_bbox_dict[catId] = []
     else:
         cat_num_dict[catId] = cat_num_dict[catId] + 1
     cat_aspect_ratios_dict[catId].append(float(bbox[2]) / bbox[3])
     cat_areas_dict[catId].append(anno['area'])
+    cat_bbox_dict[catId].append(bbox)
 
 # get category object number statistics
 all_num = 0
@@ -61,17 +64,25 @@ for catId, num in sorted_cat_num_dict:
 print('all objects number: {}'.format(all_num))
 
 # prepare data to plot
+cat_names = []
 areas_seq = []
 aspect_ratios_seq = []
-cat_names = []
+widths_seq = []
+heights_seq = []
 for catId in cat_num_dict:
     cat_names.append(coco.getCatName(catId))
     areas = np.array(cat_areas_dict[catId])
     areas_seq.append(areas)
     aspect_ratios = np.array(cat_aspect_ratios_dict[catId])
     aspect_ratios_seq.append(aspect_ratios)
+    widths = np.array(cat_bbox_dict[catId])[:, 2]
+    widths_seq.append(widths)
+    heights = np.array(cat_bbox_dict[catId])[:, 3]
+    heights_seq.append(heights)
 all_areas = np.concatenate(areas_seq)
 all_aspect_ratios = np.concatenate(aspect_ratios_seq)
+all_widths = np.concatenate(widths_seq)
+all_heights = np.concatenate(heights_seq)
 
 
 def my_plot(data, label, name='', range=None, update_kwargs=None):
@@ -92,40 +103,70 @@ def my_plot(data, label, name='', range=None, update_kwargs=None):
 
 
 # plot
-plt.clf()
-update_kwargs = {'log': True}
-my_plot(areas_seq, cat_names, name='area_logy', range=None,
-        update_kwargs=update_kwargs)
+# plt.clf()
+# update_kwargs = {'log': True}
+# my_plot(areas_seq, cat_names, name='area_logy', range=None,
+#         update_kwargs=update_kwargs)
 
 # plt.clf()
 # plt.semilogx()
 # my_plot(areas_seq, cat_names, name='area_logxy', bins=30, range=None,
 #         update_kwargs=update_kwargs)
 
+# plt.clf()
+# my_plot(areas_seq, cat_names, name='area_range_logy', range=(0, 10000),
+#         update_kwargs=update_kwargs)
+#
+# plt.clf()
+# update_kwargs = {'density': True, 'cumulative': True}
+# my_plot(all_areas, 'all', name='area_all_cum', range=None,
+#         update_kwargs=update_kwargs)
+
 plt.clf()
-my_plot(areas_seq, cat_names, name='area_range_logy', range=(0, 10000),
+update_kwargs = {}
+my_plot(all_widths, 'all', name='all_widths', range=None,
+        update_kwargs=update_kwargs)
+
+plt.clf()
+my_plot(all_widths, 'all', name='all_widths_range', range=(0, 400),
         update_kwargs=update_kwargs)
 
 plt.clf()
 update_kwargs = {'density': True, 'cumulative': True}
-my_plot(all_areas, 'all', name='area_all_cum', range=None,
+my_plot(all_widths, 'all', name='width_all_cum', range=None,
+        update_kwargs=update_kwargs)
+
+plt.clf()
+my_plot(all_heights, 'all', name='all_heights', range=None,
+        update_kwargs=update_kwargs)
+
+plt.clf()
+my_plot(all_heights, 'all', name='all_heights_range', range=(0, 10000),
+        update_kwargs=update_kwargs)
+
+plt.clf()
+update_kwargs = {'density': True, 'cumulative': True}
+my_plot(all_heights, 'all', name='height_all_cum', range=None,
         update_kwargs=update_kwargs)
 
 # plt.clf()
 # my_plot(all_areas, 'all', name='area_all_cum', bins=30, range=(0, 10000),
 #         update_kwargs=update_kwargs)
 
-plt.clf()
-plt.semilogy()
-my_plot(aspect_ratios_seq, cat_names, name='aspect_ratio_logy',
-        range=None)
-
-plt.clf()
-plt.semilogy()
-my_plot(aspect_ratios_seq, cat_names, name='aspect_ratio_range_logy',
-        range=(0, 4))
+# plt.clf()
+# plt.semilogy()
+# my_plot(aspect_ratios_seq, cat_names, name='aspect_ratio_logy',
+#         range=None)
+#
+# plt.clf()
+# plt.semilogy()
+# my_plot(aspect_ratios_seq, cat_names, name='aspect_ratio_range_logy',
+#         range=(0, 4))
 
 # plt.clf()
 # update_kwargs = {'density': True, 'cumulative': True}
 # my_plot(all_aspect_ratios, 'all', name='aspect_ratio_all_cum', bins=30,
 #         range=None, update_kwargs=update_kwargs)
+
+
+
