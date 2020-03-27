@@ -436,11 +436,10 @@ class COCOeval:
         :iouThr: IoU threshold for summarize items without specific iouThr, Set
         None for iouThr=self.param.iouThr
         '''
-        def _summarize(ap=1, iouThr=None, areaRng='all', maxDets=100, kind=-1, final_pr=False):
+        def _summarize(ap=1, iouThr=None, areaRng='all', maxDets=100, kind=-1):
             """
             :param ap: get ap or ar. When final_pr = True, get final precision or recall.
             :param kind: index of category. Note it is different from category id.
-            :param final_pr: get precision or recall when treat all detections as positives.
             :return: metic score value
             """
             p = self.params
@@ -510,20 +509,20 @@ class COCOeval:
                 stats = np.zeros((6,))
             else:
                 stats = np.zeros((12,))
-            stats[0] = _summarize(1, kind=kind, final_pr=final_pr)
+            stats[0] = _summarize(1, kind=kind)
             stats[1] = _summarize(1, iouThr=.5, maxDets=self.params.maxDets[2],
-                                  kind=kind, final_pr=final_pr)
+                                  kind=kind)
             stats[2] = _summarize(1, iouThr=.75, maxDets=self.params.maxDets[2],
-                                  kind=kind, final_pr=final_pr)
+                                  kind=kind)
             stats[3] = _summarize(1, iouThr=iouThr, areaRng='small',
                                   maxDets=self.params.maxDets[2],
-                                  kind=kind, final_pr=final_pr)
+                                  kind=kind)
             stats[4] = _summarize(1, iouThr=iouThr, areaRng='medium',
                                   maxDets=self.params.maxDets[2],
-                                  kind=kind, final_pr=final_pr)
+                                  kind=kind)
             stats[5] = _summarize(1, iouThr=iouThr, areaRng='large',
                                   maxDets=self.params.maxDets[2],
-                                  kind=kind, final_pr=final_pr)
+                                  kind=kind)
             if not final_pr:
                 stats[6] = _summarize(0, iouThr=iouThr,
                                       maxDets=self.params.maxDets[0], kind=kind)
