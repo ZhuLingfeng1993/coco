@@ -514,13 +514,14 @@ class COCOeval:
                                   kind=kind)
             stats[2] = _summarize(1, iouThr=.75, maxDets=self.params.maxDets[2],
                                   kind=kind)
-            stats[3] = _summarize(1, iouThr=iouThr, areaRng='small',
+            areaRngLbl = self.params.areaRngLbl
+            stats[3] = _summarize(1, iouThr=iouThr, areaRng=areaRngLbl[1],
                                   maxDets=self.params.maxDets[2],
                                   kind=kind)
-            stats[4] = _summarize(1, iouThr=iouThr, areaRng='medium',
+            stats[4] = _summarize(1, iouThr=iouThr, areaRng=areaRngLbl[2],
                                   maxDets=self.params.maxDets[2],
                                   kind=kind)
-            stats[5] = _summarize(1, iouThr=iouThr, areaRng='large',
+            stats[5] = _summarize(1, iouThr=iouThr, areaRng=areaRngLbl[3],
                                   maxDets=self.params.maxDets[2],
                                   kind=kind)
             if not final_pr:
@@ -530,13 +531,13 @@ class COCOeval:
                                       maxDets=self.params.maxDets[1], kind=kind)
                 stats[8] = _summarize(0, iouThr=iouThr,
                                       maxDets=self.params.maxDets[2], kind=kind)
-                stats[9] = _summarize(0, iouThr=iouThr, areaRng='small',
+                stats[9] = _summarize(0, iouThr=iouThr, areaRng=areaRngLbl[1],
                                       maxDets=self.params.maxDets[2],
                                       kind=kind)
-                stats[10] = _summarize(0, iouThr=iouThr, areaRng='medium',
+                stats[10] = _summarize(0, iouThr=iouThr, areaRng=areaRngLbl[2],
                                        maxDets=self.params.maxDets[2],
                                        kind=kind)
-                stats[11] = _summarize(0, iouThr=iouThr, areaRng='large',
+                stats[11] = _summarize(0, iouThr=iouThr, areaRng=areaRngLbl[3],
                                        maxDets=self.params.maxDets[2],
                                        kind=kind)
             return stats
