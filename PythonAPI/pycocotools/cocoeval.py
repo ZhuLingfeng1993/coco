@@ -427,14 +427,12 @@ class COCOeval:
         toc = time.time()
         print('DONE (t={:0.2f}s).'.format( toc-tic))
 
-    def summarize(self, per_category=False, final_pr=False, iouThr=None):
+    def summarize(self, per_category=False, final_pr=False):
         '''
         Compute and display summary metrics for evaluation results.
         Note this functin can *only* be applied on the default parameter setting
         :param per_category: Summarize mean of all category then summarize each category independently.
         :param final_pr: Summarize precision and recall by treating all detections as positives.
-        :iouThr: IoU threshold for summarize items without specific iouThr, Set
-        None for iouThr=self.param.iouThr
         '''
         def _summarize(ap=1, iouThr=None, areaRng='all', maxDets=100, kind=-1):
             """
@@ -505,6 +503,7 @@ class COCOeval:
             :param kind: index of category. Note it is different from category id.
             :return:
             """
+            iouThrSpec = self.params.iouThrSpec
             if final_pr:
                 stats = np.zeros((6,))
             else:
@@ -515,29 +514,29 @@ class COCOeval:
             stats[2] = _summarize(1, iouThr=.75, maxDets=self.params.maxDets[2],
                                   kind=kind)
             areaRngLbl = self.params.areaRngLbl
-            stats[3] = _summarize(1, iouThr=iouThr, areaRng=areaRngLbl[1],
+            stats[3] = _summarize(1, iouThr=iouThrSpec, areaRng=areaRngLbl[1],
                                   maxDets=self.params.maxDets[2],
                                   kind=kind)
-            stats[4] = _summarize(1, iouThr=iouThr, areaRng=areaRngLbl[2],
+            stats[4] = _summarize(1, iouThr=iouThrSpec, areaRng=areaRngLbl[2],
                                   maxDets=self.params.maxDets[2],
                                   kind=kind)
-            stats[5] = _summarize(1, iouThr=iouThr, areaRng=areaRngLbl[3],
+            stats[5] = _summarize(1, iouThr=iouThrSpec, areaRng=areaRngLbl[3],
                                   maxDets=self.params.maxDets[2],
                                   kind=kind)
             if not final_pr:
-                stats[6] = _summarize(0, iouThr=iouThr,
+                stats[6] = _summarize(0, iouThr=iouThrSpec,
                                       maxDets=self.params.maxDets[0], kind=kind)
-                stats[7] = _summarize(0, iouThr=iouThr,
+                stats[7] = _summarize(0, iouThr=iouThrSpec,
                                       maxDets=self.params.maxDets[1], kind=kind)
-                stats[8] = _summarize(0, iouThr=iouThr,
+                stats[8] = _summarize(0, iouThr=iouThrSpec,
                                       maxDets=self.params.maxDets[2], kind=kind)
-                stats[9] = _summarize(0, iouThr=iouThr, areaRng=areaRngLbl[1],
+                stats[9] = _summarize(0, iouThr=iouThrSpec, areaRng=areaRngLbl[1],
                                       maxDets=self.params.maxDets[2],
                                       kind=kind)
-                stats[10] = _summarize(0, iouThr=iouThr, areaRng=areaRngLbl[2],
+                stats[10] = _summarize(0, iouThr=iouThrSpec, areaRng=areaRngLbl[2],
                                        maxDets=self.params.maxDets[2],
                                        kind=kind)
-                stats[11] = _summarize(0, iouThr=iouThr, areaRng=areaRngLbl[3],
+                stats[11] = _summarize(0, iouThr=iouThrSpec, areaRng=areaRngLbl[3],
                                        maxDets=self.params.maxDets[2],
                                        kind=kind)
             return stats
@@ -556,9 +555,10 @@ class COCOeval:
             return stats
         if not self.eval:
             raise Exception('Please run accumulate() first')
-        if iouThr not in self.params.iouThrs:
+        iouThrSpec = self.params.iouThrSpec
+        if iouThrSpec is not None and iouThrSpec not in self.params.iouThrs:
             raise Exception('iouThr {} is not in params.iouThr: {}'.format(
-                iouThr, self.params.iouThrs))
+                iouThrSpec, self.params.iouThrs))
         iouType = self.params.iouType
         if iouType == 'segm' or iouType == 'bbox':
             summarize = _summarizeDets
@@ -589,6 +589,9 @@ class Params:
         self.catIds = []
         # np.arange causes trouble.  the data point on arange is slightly larger than the true value
         self.iouThrs = np.linspace(.5, 0.95, int(np.round((0.95 - .5) / .05)) + 1, endpoint=True)
+        # iouThrSpec: IoU threshold for summarize items without specific iouThr,
+        # Set None for iouThr=self.param.iouThr
+        self.iouThrSpec = None
         self.recThrs = np.linspace(.0, 1.00, int(np.round((1.00 - .0) / .01)) + 1, endpoint=True)
         self.maxDets = [1, 10, 100]
         self.areaRng = [[0 ** 2, 1e5 ** 2], [0 ** 2, 32 ** 2], [32 ** 2, 96 ** 2], [96 ** 2, 1e5 ** 2]]
