@@ -38,9 +38,11 @@ cat_num_dict = {}
 cat_aspect_ratios_dict = {}  # aspect_ratio = width/height
 cat_areas_dict = {}
 cat_bbox_dict = {}
+all_bboxes = []
 for anno in anns:
     catId = anno['category_id']
     bbox = anno['bbox']
+    all_bboxes.append(bbox)
     if catId not in cat_num_dict:
         cat_num_dict[catId] = 1
         cat_aspect_ratios_dict[catId] = []
@@ -64,6 +66,7 @@ for catId, num in sorted_cat_num_dict:
 print('all objects number: {}'.format(all_num))
 
 # prepare data to plot
+'''
 cat_names = []
 areas_seq = []
 aspect_ratios_seq = []
@@ -93,6 +96,26 @@ all_widths = np.concatenate(widths_seq)
 all_heights = np.concatenate(heights_seq)
 all_x_centers = np.concatenate(x_centers_seq)
 all_y_centers = np.concatenate(y_centers_seq)
+'''
+all_bboxes = np.array(all_bboxes)
+all_x = all_bboxes[:, 0]
+all_y = all_bboxes[:, 1]
+all_widths = all_bboxes[:, 2]
+all_heights = all_bboxes[:, 2]
+all_x_centers = all_x + all_widths / 2
+all_y_centers = all_y + all_heights / 2
+all_x_rights = all_x + all_widths
+all_y_bottoms = all_y + all_heights
+image_width = 1920
+image_height = 1208
+left_ids = all_x_centers < image_width / 2
+right_ids = all_x_centers >= image_width / 2
+print(all_x.shape)
+print(all_x_rights.shape)
+all_x_sides = np.hstack((all_x[left_ids], all_x_rights[right_ids]))
+top_ids = all_y_centers < image_height / 2
+bottom_ids = all_y_centers >= image_height / 2
+all_y_sides = np.hstack((all_y[top_ids], all_y_bottoms[bottom_ids]))
 
 
 def my_plot(data, label, name='', range=None, update_kwargs=None):
@@ -112,21 +135,54 @@ def my_plot(data, label, name='', range=None, update_kwargs=None):
     plt.savefig("{}.jpg".format(name))
 
 
-def my_plot2d(data1, data2, name1='', name2='', range=None, update_kwargs=None):
+def my_plot2d(data1, data2, name1='', name2='', contour=False, data_range=None,
+              update_kwargs=None):
     kwargs = {'density': False}
     if update_kwargs is not None:
         kwargs.update(update_kwargs)
-    # _, _, patches = plt.hist(data, bins=bins, range=range, **kwargs)
-    plt.hist2d(data1, data2, range=range, **kwargs)
+    h, xedges, yedges, _ = plt.hist2d(data1, data2, range=data_range, **kwargs)
+    plt.grid(which='both')
+
+    # show image with text annotation
+    # h=h/np.sum(h)*100
+    # plt.clf()
+    # # plt.figure(figsize=(10, 10))
+    # plt.imshow(h)
+    # for i in range(len(yedges)-1):
+    #     for j in range(len(xedges)-1):
+    #         text = plt.text(j, i, h[i, j],
+    #                         ha="center", va="center", color="w")
+
+    plt.colorbar()
     plt.xlabel(name1)
     plt.ylabel(name2)
+    plt.title(name1 + '_and_' + name2)
     # plt.legend(patches, label, loc='upper right')
     plt.minorticks_on()
-    plt.grid(which='both')
-    plt.colorbar()
     plt.show()
     plt.savefig("{}.jpg".format(name1 + '_and_' + name2))
 
+    if contour:
+        plt.clf()
+        h = h / np.sum(h) * 100
+        plt.clf()
+        cs = plt.contour(np.transpose(h))
+        plt.xlabel(name1)
+        plt.ylabel(name2)
+        plt.title(name1 + '_and_' + name2 + '_contour')
+        plt.clabel(cs, inline=1)
+        plt.show()
+        plt.savefig("{}.jpg".format(name1 + '_and_' + name2 + '_contour'))
+
+
+plt.clf()
+update_kwargs = {'density': True, 'cumulative': True}
+my_plot(all_x_sides, 'all', name='x_sides_all_cum', range=None,
+        update_kwargs=update_kwargs)
+plt.clf()
+update_kwargs = {'density': True, 'cumulative': True}
+my_plot(all_y_sides, 'all', name='y_sides_all_cum', range=None,
+        update_kwargs=update_kwargs)
 
 # plot
 # plt.clf()
@@ -147,36 +203,44 @@ def my_plot2d(data1, data2, name1='', name2='', range=None, update_kwargs=None):
 # update_kwargs = {'density': True, 'cumulative': True}
 # my_plot(all_areas, 'all', name='area_all_cum', range=None,
 #         update_kwargs=update_kwargs)
-from matplotlib import colors
 
-# # We can increase the number of bins on each axis
-# axs[0].hist2d(x, y, bins=40)
-#
-# # As well as define normalization of the colors
-# h2 = axs[1].hist2d(x, y, bins=40, norm=colors.LogNorm())
-#
-# # We can also define custom numbers of bins for each axis
-# axs[2].hist2d(x, y, bins=(80, 10), norm=colors.LogNorm())
-# plt.colorbar()
+from matplotlib import colors  # for colors.LogNorm()
 
+'''
 plt.clf()
-# update_kwargs = {'bins':(25,50)}
-update_kwargs = {}
+update_kwargs = {'bins': 25}
+# update_kwargs = {'norm': colors.LogNorm()}
 my_plot2d(all_x_centers, all_widths, name1='all_x_centers', name2='all_widths',
-          range=[[0, 500], [0, 200]], update_kwargs=update_kwargs)
+          data_range=[[0, 500], [0, 200]], update_kwargs=update_kwargs)
 plt.clf()
-update_kwargs = {}
+update_kwargs = {'bins': 25}
+# update_kwargs = {'norm': colors.LogNorm()}
 my_plot2d(all_y_centers, all_widths, name1='all_y_centers', name2='all_widths',
-          range=None, update_kwargs=update_kwargs)
+          data_range=None, update_kwargs=update_kwargs)
+plt.clf()
+update_kwargs = {'bins': 25}
+# update_kwargs = {'norm': colors.LogNorm()}
+my_plot2d(all_x_centers, all_y_centers, name1='all_x_centers',
+          name2='all_y_centers',
+          data_range=None, update_kwargs=update_kwargs)
 
 plt.clf()
 update_kwargs = {}
 my_plot(all_x_centers, 'all', name='all_x_centers', range=None,
         update_kwargs=update_kwargs)
 plt.clf()
+update_kwargs = {'density': True, 'cumulative': True}
+my_plot(all_x_centers, 'all', name='x_center_all_cum', range=None,
+        update_kwargs=update_kwargs)
+plt.clf()
 update_kwargs = {}
 my_plot(all_y_centers, 'all', name='all_y_centers', range=None,
         update_kwargs=update_kwargs)
+plt.clf()
+update_kwargs = {'density': True, 'cumulative': True}
+my_plot(all_y_centers, 'all', name='y_center_all_cum', range=None,
+        update_kwargs=update_kwargs)
+'''
 
 # plt.clf()
 # update_kwargs = {}
