@@ -25,6 +25,22 @@ cocoDt = cocoGt.loadRes(resFile)
 # running evaluation
 cocoEval = COCOeval(cocoGt, cocoDt, annType)
 # cocoEval.params.imgIds  = imgIds
+# area_seq = [400, 800, 1200, 1600, 2000, 1e10]
+# area_rng = [[0,area_seq[-1]]]
+# for i in range(len(area_seq))
+# cocoEval.params.areaRng = [[0 ** 2, 10e5 ** 2], [0 ** 2, 32 ** 2],
+#                            [32 ** 2, 64 ** 2],
+#                            [64 ** 2, 96 ** 2],
+#                            [96 ** 2, 1e5 ** 2]]
+# cocoEval.params.areaRngLbl = ['all', 'small', 'sm', 'medium', 'large']
+# area_seq = [32**2, 96**2]
+area_seq = [400, 800]
+cocoEval.params.areaRng = [[0 ** 2, 10e5 ** 2], [0 ** 2, area_seq[0]],
+                           [area_seq[0], area_seq[1]],
+                           [area_seq[1], 1e5 ** 2]]
+cocoEval.params.areaRngLbl = ['all', 's_' + str(area_seq[0]), 'medium',
+                       'l_' + str(area_seq[1])]
+cocoEval.params.iouThrSpec = 0.5
 
 cocoEval.evaluate()
 cocoEval.accumulate()
