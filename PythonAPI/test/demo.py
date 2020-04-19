@@ -3,6 +3,10 @@
 # -----------------------------------------------------
 # Written by Zhu Lingfeng on 2020/3/20.
 # -----------------------------------------------------
+import sys
+sys.path.insert(0, sys.path[0] + '/..')
+
+import os
 from pycocotools.coco import COCO
 import numpy as np
 # import skimage.io as io
@@ -13,7 +17,10 @@ import matplotlib.pyplot as plt
 # dataDir='/workspace/coco2017'
 # dataType='val2017'
 # annFile='{}/annotations/instances_{}.json'.format(dataDir,dataType)
-annFile = 'test_set.json'
+dataDir = './'
+imageDir = os.path.join(dataDir, '')
+# imageDir = os.path.join(dataDir, 'images')
+annFile = os.path.join(dataDir, 'test_set.json')
 coco = COCO(annFile)
 # Compute area if area is not set in annotations.
 coco.computeArea()
@@ -36,7 +43,6 @@ imgIds = sorted(imgIds)
 print(len(imgIds))
 
 # show image and annotations
-fig = plt.figure(figsize=[15, 10])
 while True:
     # randomly pick one image
     imgId = imgIds[np.random.randint(len(imgIds))]
@@ -46,7 +52,7 @@ while True:
     # print(I.shape)
     # I = io.imread('%s/images/%s/%s'%(dataDir,dataType,img['file_name']))
     # I = io.imread("{}".format(img['file_name']))
-    I = Image.open(img['file_name'])
+    I = Image.open(os.path.join(imageDir, img['file_name']))
     print(img['file_name'])
 
     # load and display instance annotations
