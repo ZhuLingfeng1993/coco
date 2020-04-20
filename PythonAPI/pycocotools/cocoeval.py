@@ -333,10 +333,13 @@ class COCOeval:
         K           = len(p.catIds) if p.useCats else 1
         A           = len(p.areaRng)
         M           = len(p.maxDets)
+        S           = len(p.scoreThrs)
         precision   = -np.ones((T,R,K,A,M)) # -1 for the precision of absent categories
         final_precision   = -np.ones((T,K,A,M))
         recall      = -np.ones((T,K,A,M))
         scores      = -np.ones((T,R,K,A,M))
+        pr_with_score_thrs = -np.ones((T,K,A,M,S))
+        rc_with_score_thrs = -np.ones((T,K,A,M,S))
 
         # create dictionary for future indexing
         _pe = self._paramsEval
@@ -369,6 +372,12 @@ class COCOeval:
                     inds = np.argsort(-dtScores, kind='mergesort')
                     dtScoresSorted = dtScores[inds]
 
+                    # find indices of score thresholds in dtScoresSorted.
+                    scoreThrInds = [np.searchsorted(-dtScoresSorted, -st, 'right') for st in p.scoreThrs]
+                    for i, s in enumerate(scoreThrInds):
+                        if s >= len(dtScoresSorted):
+                            scoreThrInds[i] = s - 1
+
                     dtm  = np.concatenate([e['dtMatches'][:,0:maxDet] for e in E], axis=1)[:,inds]
                     dtIg = np.concatenate([e['dtIgnore'][:,0:maxDet]  for e in E], axis=1)[:,inds]
                     gtIg = np.concatenate([e['gtIgnore'] for e in E])
@@ -392,9 +401,13 @@ class COCOeval:
                         if nd:
                             final_precision[t,k,a,m] = pr[-1]
                             recall[t,k,a,m] = rc[-1]
+                            pr_with_score_thrs[t, k, a, m] = pr[scoreThrInds]
+                            rc_with_score_thrs[t, k, a, m] = rc[scoreThrInds]
                         else:
                             final_precision[t,k,a,m] = 0
                             recall[t,k,a,m] = 0
+                            pr_with_score_thrs[t, k, a, m] = np.zeros(S)
+                            rc_with_score_thrs[t, k, a, m] = np.zeros(S)
 
                         # numpy is slow without cython optimization for accessing elements
                         # use python array gets significant speed improvement
@@ -406,11 +419,12 @@ class COCOeval:
                             if pr[i] > pr[i-1]:
                                 pr[i-1] = pr[i]
 
-                        # set q as precisions with same indices as p.recThrs in rc.
                         inds = np.searchsorted(rc, p.recThrs, side='left')
                         try:
                             for ri, pi in enumerate(inds):
+                                # set q as precisions with same indices as p.recThrs in rc.
                                 q[ri] = pr[pi]
+                                # set ss as sorted score with same indices as p.recThrs in rc.
                                 ss[ri] = dtScoresSorted[pi]
                         except:
                             pass
@@ -424,9 +438,48 @@ class COCOeval:
             'recall':   recall, # recall when treat all detections as positives.
             'scores': scores,
             'final_precision': final_precision, # precision when treat all detections as positives.
+            'precision_with_score_thrs': pr_with_score_thrs,
+            'recall_with_score_thrs': rc_with_score_thrs
         }
         toc = time.time()
         print('DONE (t={:0.2f}s).'.format( toc-tic))
+
+    def computePR(self):
+        def _computePR(iouThr=0.5, areaRng='all', maxDets=100, kind=-1):
+            p = self.params
+            aind = [i for i, aRng in enumerate(p.areaRngLbl) if aRng == areaRng]
+            mind = [i for i, mDet in enumerate(p.maxDets) if mDet == maxDets]
+            res_key = ['precision_with_score_thrs', 'recall_with_score_thrs']
+            res = []
+            for i, key in enumerate(res_key):
+                # dimension of precision: [TxKxAxM]
+                s = self.eval[key]
+                if iouThr is not None:
+                    t = np.where(iouThr == p.iouThrs)[0]
+                    s = s[t]
+                s = s[:, :, aind, mind]
+                if kind != -1:
+                    s = s[:, kind]
+                # if len(s[s > -1]) == 0:
+                #     mean_s = -1
+                # else:
+                #     mean_s = np.mean(s[s > -1])
+                res.append(s.squeeze())
+            return res
+
+        if len(self.params.catIds) != self.eval["recall"].shape[1]:
+            raise Exception("Please make sure no duplicates in param.catIds")
+        print("\n")
+        print("########  Category Precision/Recall #######")
+        print("param.scoreThrs = {}".format(self.params.scoreThrs))
+        print("{:<20} {:<40} {:<20}".format('category', 'Precision', 'Recall'))
+        print("------------------------------------------------------------------------------------")
+        assert(len(self.params.scoreThrs) == 5, "")
+        for i, catId in enumerate(self.params.catIds):
+            PR = _computePR(kind=i)
+            print("{:<20} {:0.3f} {:.3f} {:.3f} {:.3f} {:.3f}    {:.3f} {:.3f} {:.3f} {:.3f} {:.3f}".format(
+                self.cocoGt.getCatName(catId), *PR[0], *PR[1]))
+
 
     def summarize(self, per_category=False, final_pr=False):
         '''
@@ -612,6 +665,7 @@ class Params:
         self.areaRng = [[0 ** 2, 1e5 ** 2], [0 ** 2, 32 ** 2], [32 ** 2, 96 ** 2], [96 ** 2, 1e5 ** 2]]
         self.areaRngLbl = ['all', 'small', 'medium', 'large']
         self.useCats = 1
+        self.scoreThrs =[0.01, 0.05, 0.1, 0.2, 0.5]
 
     def setKpParams(self):
         self.imgIds = []
