@@ -552,6 +552,7 @@ class COCOeval:
                         mean_s = np.mean(s[s>-1])
                     res[i] = mean_s
                 print(iStr.format(titleStr, "", iouStr, areaRng, maxDets, res[0], res[1]))
+                return res
         def _summarizeDets(kind=-1):
             """
             :param kind: index of category. Note it is different from category id.
@@ -559,7 +560,7 @@ class COCOeval:
             """
             iouThrSpec = self.params.iouThrSpec
             if final_pr:
-                stats = np.zeros((6,))
+                stats = np.zeros((6, 2))
             else:
                 stats = np.zeros((12,))
             stats[0] = _summarize(1, kind=kind)
@@ -623,7 +624,10 @@ class COCOeval:
         if per_category and summarize == _summarizeDets:
             if len(self.params.catIds) != self.eval["recall"].shape[1]:
                 raise Exception("Please make sure no duplicates in param.catIds")
-            cat_stats = np.zeros((len(self.params.catIds), len(self.stats)))
+            if final_pr:
+                cat_stats = np.zeros((len(self.params.catIds), len(self.stats), 2))
+            else:
+                cat_stats = np.zeros((len(self.params.catIds), len(self.stats)))
             for i, catId in enumerate(self.params.catIds):
                 print("\n")
                 print("######## Eval category: {}, id = {} ########".format(
@@ -631,7 +635,10 @@ class COCOeval:
                 cat_stats[i] = summarize(i)
             self.category_stats = cat_stats.transpose()
             self.category_stats_t = cat_stats
-            self.printCatEval()
+            if final_pr:
+                self.printCatEvalPR()
+            else:
+                self.printCatEval()
 
     def printCatEval(self):
         print("\n")
@@ -644,6 +651,18 @@ class COCOeval:
             return
         for i, catId in enumerate(self.params.catIds):
             print("{:<20} {:0.3f}".format(self.cocoGt.getCatName(catId), self.category_stats_t[i][1]))
+
+    def printCatEvalPR(self):
+        print("\n")
+        print("######## Eval category Precision/Recall ########")
+        print("{:<20} Precision       Recall".format('category'))
+        print("----------------------------------------------")
+        if len(self.category_stats_t) == 0:
+            print("self.category_stats_t is empty.")
+            return
+        for i, catId in enumerate(self.params.catIds):
+            print("{:<20} {:<15.3f} {:<15.3f}".format(self.cocoGt.getCatName(catId), self.category_stats_t[i][1][0],
+                                                      self.category_stats_t[i][1][1]))
 
     def __str__(self):
         self.summarize()
