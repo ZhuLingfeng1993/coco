@@ -207,6 +207,38 @@ class COCO:
         catNms = [cat['name'] for cat in cats if cat['id'] in catIds]
         return catNms
 
+    def countCatNums(self, catIds=[]):
+        '''
+        Count category annotation numbers that satisfy given filter conditions.
+        :param catIds (int array) : get with all given cats
+        :return:
+            catIdNums (dict)  : category numbers dict map from category id to number.
+            catMameNums (dict)  : category numbers dict map from category name to number.
+        '''
+        catIds = catIds if _isArrayLike(catIds) else [catIds]
+        if len(catIds) == 0:
+            catIds = self.getCatIds()
+        catIdNums = {catId: 0 for catId in catIds}
+        for anno in self.dataset['annotations']:
+            catId = anno['category_id']
+            if catId in catIds:
+                catIdNums[catId] += 1
+        catNameNums = {self.getCatNms(catIds=catId)[0]: catIdNums[catId] for catId in catIds}
+        return catIdNums, catNameNums
+
+    def printCatNums(self, catIds=[]):
+        '''
+        Count and print category annotation numbers that satisfy given filter conditions.
+        :param catIds (int array) : get with all given cats
+        '''
+        _, catNameNums = self.countCatNums(catIds)
+        print("\n")
+        print("########  Category annotation numbers #######")
+        print("{:<20} {}".format('category', 'Numbers'))
+        print("----------------------------------------------")
+        for name, num in catNameNums.items():
+            print("{:<20} {}".format(name, num))
+
     def getImgIds(self, imgIds=[], catIds=[]):
         '''
         Get img ids that satisfy given filter conditions.
