@@ -75,7 +75,8 @@ class COCOeval:
         self.params = Params(iouType=iouType) # parameters
         self._paramsEval = {}               # parameters for evaluation
         self.stats = []                     # result summarization
-        self.category_stats = [[]]          # per category result summarization
+        self.category_stats = [[]]          # per category result summarization(first dim for stats)
+        self.category_stats_t = [[]]        # per category result summarization(first dim for category)
         self.ious = {}                      # ious between all gts and dts
         if not cocoGt is None:
             self.params.imgIds = sorted(cocoGt.getImgIds())
@@ -576,6 +577,20 @@ class COCOeval:
                     self.cocoGt.getCatName(catId), catId))
                 cat_stats[i] = summarize(i)
             self.category_stats = cat_stats.transpose()
+            self.category_stats_t = cat_stats
+            self.printCatEval()
+
+    def printCatEval(self):
+        print("\n")
+        print("######## Eval category AP ########")
+        print("{:<20} AP@IoU0.5".format('category'))
+        print("----------------------------------------------")
+        print("{:<20} {:0.3f}".format('all', self.stats[1]))
+        if len(self.category_stats_t) == 0:
+            print("self.category_stats_t is empty.")
+            return
+        for i, catId in enumerate(self.params.catIds):
+            print("{:<20} {:0.3f}".format(self.cocoGt.getCatName(catId), self.category_stats_t[i][1]))
 
     def __str__(self):
         self.summarize()
