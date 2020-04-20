@@ -234,10 +234,10 @@ class COCO:
         _, catNameNums = self.countCatNums(catIds)
         print("\n")
         print("########  Category annotation numbers #######")
-        print("{:<20} {}".format('category', 'Numbers'))
-        print("----------------------------------------------")
+        print("|{:<20}| {:<10}|".format('category', 'Numbers'))
+        print("|---------------|-------------------------------|")
         for name, num in catNameNums.items():
-            print("{:<20} {}".format(name, num))
+            print("|{:<20}| {:<10}|".format(name, num))
 
     def getImgIds(self, imgIds=[], catIds=[]):
         '''

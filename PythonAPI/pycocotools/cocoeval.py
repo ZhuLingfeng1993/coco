@@ -472,12 +472,12 @@ class COCOeval:
         print("\n")
         print("########  Category Precision/Recall #######")
         print("param.scoreThrs = {}".format(self.params.scoreThrs))
-        print("{:<20} {:<40} {:<20}".format('category', 'Precision', 'Recall'))
-        print("------------------------------------------------------------------------------------")
+        print("|{:<20} |{:<40} |{:<20}|".format('category', 'Precision', 'Recall'))
+        print("|-----------------|---------------------------------|----------------------------------|")
         assert(len(self.params.scoreThrs) == 5, "")
         for i, catId in enumerate(self.params.catIds):
             PR = _computePR(kind=i)
-            print("{:<20} {:0.3f} {:.3f} {:.3f} {:.3f} {:.3f}    {:.3f} {:.3f} {:.3f} {:.3f} {:.3f}".format(
+            print("|{:<20} |{:0.3f} {:.3f} {:.3f} {:.3f} {:.3f}  |  {:.3f} {:.3f} {:.3f} {:.3f} {:.3f}|".format(
                 self.cocoGt.getCatName(catId), *PR[0], *PR[1]))
 
 
@@ -644,24 +644,24 @@ class COCOeval:
         print("\n")
         print("######## Eval category AP ########")
         print("{:<20} AP@IoU0.5".format('category'))
-        print("----------------------------------------------")
-        print("{:<20} {:0.3f}".format('all', self.stats[1]))
+        print("|---------------|-------------------------------|")
+        print("|{:<20} |{:0.3f}|".format('all', self.stats[1]))
         if len(self.category_stats_t) == 0:
             print("self.category_stats_t is empty.")
             return
         for i, catId in enumerate(self.params.catIds):
-            print("{:<20} {:0.3f}".format(self.cocoGt.getCatName(catId), self.category_stats_t[i][1]))
+            print("|{:<20} |{:0.3f}|".format(self.cocoGt.getCatName(catId), self.category_stats_t[i][1]))
 
     def printCatEvalPR(self):
         print("\n")
         print("######## Eval category Precision/Recall ########")
-        print("{:<20} Precision       Recall".format('category'))
-        print("----------------------------------------------")
+        print("|{:<20} |Precision   |    Recall|".format('category'))
+        print("|-------|------------|---------------------------|")
         if len(self.category_stats_t) == 0:
             print("self.category_stats_t is empty.")
             return
         for i, catId in enumerate(self.params.catIds):
-            print("{:<20} {:<15.3f} {:<15.3f}".format(self.cocoGt.getCatName(catId), self.category_stats_t[i][1][0],
+            print("|{:<20} |{:<15.3f} |{:<15.3f}|".format(self.cocoGt.getCatName(catId), self.category_stats_t[i][1][0],
                                                       self.category_stats_t[i][1][1]))
 
     def __str__(self):
