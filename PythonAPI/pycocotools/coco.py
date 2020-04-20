@@ -184,12 +184,28 @@ class COCO:
         return ids
 
     def getCatName(self, catId):
+        '''
+        deprecated
+        '''
         name = ""
         for cat in self.dataset['categories']:
             if catId == cat['id']:
                 name = cat['name']
                 return name
         assert name != ""
+
+    def getCatNms(self, catIds=[]):
+        '''
+        Get category names that satisfy given filter conditions.
+        :param catIds (int array) : get catNms with all given cats
+        :return: catNms (str array)  : string array of category names.
+        '''
+        catIds = catIds if _isArrayLike(catIds) else [catIds]
+        if len(catIds) == 0:
+            catIds = self.getCatIds()
+        cats = self.dataset['categories']
+        catNms = [cat['name'] for cat in cats if cat['id'] in catIds]
+        return catNms
 
     def getImgIds(self, imgIds=[], catIds=[]):
         '''
