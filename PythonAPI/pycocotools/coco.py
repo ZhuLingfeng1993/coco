@@ -231,13 +231,16 @@ class COCO:
         Count and print category annotation numbers that satisfy given filter conditions.
         :param catIds (int array) : get with all given cats
         '''
+        if len(catIds) == 0:
+            catIds = self.getCatIds()
         _, catNameNums = self.countCatNums(catIds)
         print("\n")
         print("########  Category annotation numbers #######")
         print("|{:<20}| {:<10}|".format('category', 'Numbers'))
         print("|---------------|-------------------------------|")
-        for name, num in catNameNums.items():
-            print("|{:<20}| {:<10}|".format(name, num))
+        for catId in catIds:
+            catName = self.getCatNms(catIds=catId)[0]
+            print("|{:<20}| {:<10}|".format(catName, catNameNums[catName]))
 
     def getImgIds(self, imgIds=[], catIds=[]):
         '''
