@@ -39,13 +39,18 @@ cocoEval.params.areaRng = [[0 ** 2, 10e5 ** 2], [0 ** 2, area_seq[0]],
                            [area_seq[0], area_seq[1]],
                            [area_seq[1], 1e5 ** 2]]
 cocoEval.params.areaRngLbl = ['all', 's_' + str(area_seq[0]), 'medium',
-                       'l_' + str(area_seq[1])]
+                              'l_' + str(area_seq[1])]
 cocoEval.params.iouThrSpec = 0.5
+cocoEval.params.scoreThrs = [0.01, 0.05, 0.1, 0.2, 0.5]
 
 cocoEval.evaluate()
 cocoEval.accumulate()
+# cocoEval.summarize(per_category=True, final_pr=True)
 cocoEval.summarize(per_category=True, final_pr=False)
 
+cocoGt.printCatNums()
+
+cocoEval.computePR()
 # cocoEval.params.catIds = cocoGt.getCatIds(catNms=["cat1"])
 # cocoEval.evaluate()
 # cocoEval.accumulate()
