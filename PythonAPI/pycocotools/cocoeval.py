@@ -477,7 +477,7 @@ class COCOeval:
         assert(len(self.params.scoreThrs) == 5, "")
         for i, catId in enumerate(self.params.catIds):
             PR = _computePR(kind=i)
-            print("|{:<20} |{:0.3f} {:.3f} {:.3f} {:.3f} {:.3f}  |  {:.3f} {:.3f} {:.3f} {:.3f} {:.3f}|".format(
+            print("|{:<20} |{:0.3f}, {:.3f}, {:.3f}, {:.3f}, {:.3f}  |  {:.3f}, {:.3f}, {:.3f}, {:.3f}, {:.3f}|".format(
                 self.cocoGt.getCatName(catId), *PR[0], *PR[1]))
 
 
@@ -643,7 +643,7 @@ class COCOeval:
     def printCatEval(self):
         print("\n")
         print("######## Eval category AP ########")
-        print("{:<20} AP@IoU0.5".format('category'))
+        print("|{:<20} |AP@IoU0.5|".format('category'))
         print("|---------------|-------------------------------|")
         print("|{:<20} |{:0.3f}|".format('all', self.stats[1]))
         if len(self.category_stats_t) == 0:
