@@ -12,7 +12,7 @@ def create_label_map_file(labels, outfile_path):
     with open(outfile_path, 'w') as f:
         for i, label in enumerate(labels):
             name = '  name: "' + str(label) + '"'
-            label_id = '  id: ' + str(i + 1)
+            label_id = '  id: ' + str(i)
             display_name = '  display_name: "' + str(label) + '"'
             classes = ('item {', name, label_id, display_name, '}')
             for j in range(len(classes)):
@@ -23,7 +23,7 @@ def create_fg_label_map_file(labels, outfile_path):
     with open(outfile_path, 'w') as f:
         for i, label in enumerate(labels):
             name = '  name: "' + str(label) + '"'
-            label_id = '  id: ' + str(1)
+            label_id = '  id: ' + str(min(i, 1))
             classes = ('item {', name, label_id, '}')
             for j in range(len(classes)):
                 f.writelines(classes[j])
@@ -31,7 +31,7 @@ def create_fg_label_map_file(labels, outfile_path):
 
 
 def create_json_label_map_file(labels, outfile_path):
-    label_map = {i + 1: label for i, label in enumerate(labels)}
+    label_map = {i: label for i, label in enumerate(labels)}
     # label_map = {}
     # for i, label in enumerate(labels):
     #     label_map[i] = label
@@ -52,10 +52,13 @@ def generate_tfl_categories(abbr=False, type=0):
     digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
     num_values = [d1 + d2 for d1 in digits for d2 in digits] + digits
 
+    classes = []
     if not abbr:
+        classes.append('background')
         none_number_classes = [lc + lt + bs for lc in light_colors for lt in light_types for bs in bbox_sizes]
         number_classes_without_value = [lc + "num" for lc in light_colors]
     else:
+        classes.append('bg')
         light_types[0] = "c"
         # none_number_classes = [lc[0] + lt[0] + bs for lc in light_colors for lt in light_types for bs in bbox_sizes]
         none_number_classes = [lc[0] + lt[0] for lc in light_colors for lt in light_types]
@@ -63,9 +66,10 @@ def generate_tfl_categories(abbr=False, type=0):
 
     # Temporary ignore label in the format of color+num_value
     if type == 0:
-        return none_number_classes
+        classes.extend(none_number_classes)
     elif type == 1:
-        return none_number_classes + number_classes_without_value
+        classes.extend(none_number_classes + number_classes_without_value)
+    return classes
 
 
 if __name__ == '__main__':
