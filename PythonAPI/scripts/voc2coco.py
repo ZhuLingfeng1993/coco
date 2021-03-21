@@ -71,6 +71,11 @@ def get_categories(xml_files):
     classes_names.sort()
     return {name: i for i, name in enumerate(classes_names)}
 
+def is_contains_chinese(strs):
+    for _char in strs:
+        if '\u4e00' <= _char <= '\u9fa5':
+            return True
+    return False
 
 def convert(xml_files, json_file):
     json_dict = {"images": [], "type": "instances", "annotations": [], "categories": []}
@@ -91,9 +96,9 @@ def convert(xml_files, json_file):
         else:
             raise ValueError("%d paths found in %s" % (len(path), xml_file))
         ## The filename must be a number
-        # image_id = get_filename_as_int(filename)
+        image_id = get_filename_as_int(filename)
         count += 1
-        image_id = count
+        # image_id = count
         size = get_and_check(root, "size", 1)
         width = int(get_and_check(size, "width", 1).text)
         height = int(get_and_check(size, "height", 1).text)
@@ -139,6 +144,12 @@ def convert(xml_files, json_file):
             bnd_id = bnd_id + 1
 
     for cate, cid in categories.items():
+        if is_contains_chinese(cate):
+            # convert chinese category name to pin yin.
+            old_cate = cate
+            from xpinyin import Pinyin
+            cate = Pinyin().get_pinyin(chars=cate,splitter='_')
+            print('convert category name {} to {}'.format(old_cate, cate))
         cat = {"supercategory": "none", "id": cid, "name": cate}
         json_dict["categories"].append(cat)
 
