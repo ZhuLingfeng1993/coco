@@ -88,6 +88,8 @@ def convert(xml_files, json_file):
     for xml_file in xml_files:
         tree = ET.parse(xml_file)
         root = tree.getroot()
+
+        # ######## get image filename
         path = get(root, "path")
         if len(path) == 1:
             filename = os.path.basename(path[0].text)
@@ -95,16 +97,22 @@ def convert(xml_files, json_file):
             filename = get_and_check(root, "filename", 1).text
         else:
             raise ValueError("%d paths found in %s" % (len(path), xml_file))
-        ## The filename must be a number
+        # !!! set filename as filename in xml.
+        # filename = get(root, "filename")[0].text
+        # !!! set filename as xml name.
+        filename = os.path.splitext(os.path.basename(xml_file))[0] + '.png'
+        # TODO: need to check if image file name exits
+
+        # ######## get image_id
+        # The filename must be a number
         image_id = get_filename_as_int(filename)
         count += 1
         # image_id = count
+
         size = get_and_check(root, "size", 1)
         width = int(get_and_check(size, "width", 1).text)
         height = int(get_and_check(size, "height", 1).text)
-        # !!! set filename as filename in xml.
-        filename = get(root, "filename")[0].text
-        print(filename)
+        # print(filename)
         image = {
             "file_name": filename,
             "height": height,
@@ -166,7 +174,8 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Convert Pascal VOC annotation to COCO format."
+        description="Convert Pascal VOC annotation to COCO format. \n"
+                    "Note: modify code if necessary, especially about the image filename."
     )
     parser.add_argument("xml_dir", help="Directory path to xml files.", type=str)
     parser.add_argument("json_file", help="Output COCO format json file.", type=str)
