@@ -19,11 +19,12 @@ coco = COCO(annFile)
 # Compute area if area is not set in annotations.
 coco.computeArea()
 
-# display coco categories and supercategories
-cats = coco.loadCats(coco.getCatIds())
-print("image num all: {}".format(len(coco.getImgIds())))
+# catIds = coco.getCatIds()  # all cats
+catNms = ['yin_hua_qing_xie']
+catIds = coco.getCatIds(catNms=catNms)
+print("image num all: {}".format(len(coco.getImgIds(catIds=catIds))))
 
-json_subsets = coco.splitAnno(coco.getCatIds(), ratios)
+json_subsets = coco.splitAnno(catIds, ratios)
 
 output_dir = os.path.dirname(annFile)
 for name, json_dict in zip(subsets_names, json_subsets):
