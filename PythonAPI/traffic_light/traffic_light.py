@@ -50,39 +50,51 @@ def generate_tfl_categories(abbr=False, type=0):
     bbox_sizes = ["max"]
 
     digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-    num_values = [d1 + d2 for d1 in digits for d2 in digits] + digits
+    # num_values = [d1 + d2 for d1 in digits for d2 in digits] + digits
+    num_values = [d1 + d2 for d1 in digits for d2 in digits]
 
     classes = []
     if not abbr:
         classes.append('background')
         none_number_classes = [lc + lt + bs for lc in light_colors for lt in light_types for bs in bbox_sizes]
         number_classes_without_value = [lc + "num" for lc in light_colors]
+        light_colors.remove("yellow")
+        number_classes_with_value = [lc + value for lc in light_colors for value in num_values]
     else:
         classes.append('bg')
         light_types[0] = "c"
         # none_number_classes = [lc[0] + lt[0] + bs for lc in light_colors for lt in light_types for bs in bbox_sizes]
         none_number_classes = [lc[0] + lt[0] for lc in light_colors for lt in light_types]
         number_classes_without_value = [lc[0] + "n" for lc in light_colors]
+        light_colors.remove("yellow")
+        number_classes_with_value = [lc[0] + value for lc in light_colors for value in num_values]
 
     # Temporary ignore label in the format of color+num_value
     if type == 0:
         classes.extend(none_number_classes)
     elif type == 1:
         classes.extend(none_number_classes + number_classes_without_value)
+    elif type == 2:
+        classes.extend(number_classes_with_value)
     return classes
 
 
 if __name__ == '__main__':
-    classes = generate_tfl_categories(abbr=False)
-    print(classes)
-    create_label_map_file(classes, './tfl_none_num_max_label_map.pbtxt')
-    create_json_label_map_file(classes, './tfl_none_num_max_label_map.json')
-    classes = generate_tfl_categories(abbr=True)
-    create_json_label_map_file(classes, './tfl_none_num_max_abbr_label_map.json')
+    # classes = generate_tfl_categories(abbr=False)
+    # print(classes)
+    # create_label_map_file(classes, './tfl_none_num_max_label_map.pbtxt')
+    # create_json_label_map_file(classes, './tfl_none_num_max_label_map.json')
+    # classes = generate_tfl_categories(abbr=True)
+    # create_json_label_map_file(classes, './tfl_none_num_max_abbr_label_map.json')
+    #
+    # classes = generate_tfl_categories(abbr=False, type=1)
+    # print(classes)
+    # for c in classes:
+    #   print(c)
+    # create_fg_label_map_file(classes, './tfl_fg_max_label_map.pbtxt')
+    # create_label_map_file(classes, './tfl_max_label_map.pbtxt')
+    # classes = generate_tfl_categories(abbr=True, type=1)
+    # create_json_label_map_file(classes, './tfl_max_abbr_label_map.json')
 
-    classes = generate_tfl_categories(abbr=False, type=1)
-    print(classes)
-    create_fg_label_map_file(classes, './tfl_fg_max_label_map.pbtxt')
-    create_label_map_file(classes, './tfl_max_label_map.pbtxt')
-    classes = generate_tfl_categories(abbr=True, type=1)
-    create_json_label_map_file(classes, './tfl_max_abbr_label_map.json')
+    classes = generate_tfl_categories(abbr=False, type=2)
+    create_label_map_file(classes, './tfl_number_values_label_map.pbtxt')
