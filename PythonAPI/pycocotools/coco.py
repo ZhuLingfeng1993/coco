@@ -118,6 +118,58 @@ class COCO:
         self.imgs = imgs
         self.cats = cats
 
+    def getJsonDict(self, catIds, imgIds=[]):
+        """
+        Get coco json dict with categories of catIds and images of imgIds.
+         Note, you should make sure all imgIds are of given categories.
+        """
+        if len(imgIds) == 0:
+            imgIds = self.getImgIds(catIds=catIds)
+
+        cats = self.loadCats(catIds)
+        json_dict = {'categories': cats, 'images': self.loadImgs(imgIds),
+                     'annotations': self.loadAnns(self.getAnnIds(imgIds))}
+        return json_dict
+
+    def splitAnno(self, catIds=[], ratios=[]):
+        """
+        Split annotation into annotations subsets(linke train, test), with given category
+            ids(union) and ratios.
+        :param catIds(int array)
+        :Return coco json of annotation subsets.
+        """
+
+        def splitIds(ids, ratios):
+            """
+            Split ids into several subsets with given subsets ratios.
+            """
+            import random
+            random.shuffle(ids)
+            total_num = len(ids)
+            subsets = []
+            start = 0
+            import math
+            for i, ratio in enumerate(ratios):
+                if i == len(ratios) - 1:  # final one ratio
+                    subsets.append(ids[start:])
+                    break
+                num = int(math.floor(ratio * total_num))
+                end = start + num
+                if end > total_num:
+                    raise Exception("wrong ratios: {}".format(ratios))
+                subsets.append(ids[start:end])
+                start = end
+            return subsets
+
+        imgIds = self.getImgIdsUnion(catIds=catIds)
+        imgIdsSubsets = splitIds(imgIds, ratios)
+
+        json_subsets = []
+        for subset in imgIdsSubsets:
+            json_dict = self.getJsonDict(catIds, imgIds=subset)
+            json_subsets.append(json_dict)
+        return json_subsets
+
     def computeArea(self):
         for key, ann in self.anns.items():
             if 'area' in ann:
@@ -262,7 +314,7 @@ class COCO:
                 else:
                     ids &= set(self.catToImgs[catId])
         return list(ids)
-    
+
     def getImgIdsUnion(self, imgIds=[], catIds=[]):
         '''
         Get img ids that satisfy given filter conditions.
