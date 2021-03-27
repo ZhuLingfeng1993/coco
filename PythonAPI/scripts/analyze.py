@@ -28,6 +28,7 @@ print('coco categories: \n{}\n'.format(' '.join(nms)))
 
 # get all annotations containing given categories
 cat_names = ['person', 'bicycle', 'car', 'chair']
+print('given cat names: {}'.format(cat_names))
 catIds = coco.getCatIds(catNms=cat_names)
 print(len(catIds))
 annIds = coco.getAnnIds(catIds=catIds)
@@ -66,7 +67,6 @@ for catId, num in sorted_cat_num_dict:
 print('all objects number: {}'.format(all_num))
 
 # prepare data to plot
-'''
 cat_names = []
 areas_seq = []
 aspect_ratios_seq = []
@@ -96,26 +96,28 @@ all_widths = np.concatenate(widths_seq)
 all_heights = np.concatenate(heights_seq)
 all_x_centers = np.concatenate(x_centers_seq)
 all_y_centers = np.concatenate(y_centers_seq)
-'''
-all_bboxes = np.array(all_bboxes)
-all_x = all_bboxes[:, 0]
-all_y = all_bboxes[:, 1]
-all_widths = all_bboxes[:, 2]
-all_heights = all_bboxes[:, 2]
-all_x_centers = all_x + all_widths / 2
-all_y_centers = all_y + all_heights / 2
-all_x_rights = all_x + all_widths
-all_y_bottoms = all_y + all_heights
-image_width = 1920
-image_height = 1208
-left_ids = all_x_centers < image_width / 2
-right_ids = all_x_centers >= image_width / 2
-print(all_x.shape)
-print(all_x_rights.shape)
-all_x_sides = np.hstack((all_x[left_ids], all_x_rights[right_ids]))
-top_ids = all_y_centers < image_height / 2
-bottom_ids = all_y_centers >= image_height / 2
-all_y_sides = np.hstack((all_y[top_ids], all_y_bottoms[bottom_ids]))
+# get all bbox info
+# all_bboxes = np.array(all_bboxes)
+# all_x = all_bboxes[:, 0]  # x_left
+# all_y = all_bboxes[:, 1]  # y_top
+# all_widths = all_bboxes[:, 2]
+# all_heights = all_bboxes[:, 3]
+# all_x_centers = all_x + all_widths / 2
+# all_y_centers = all_y + all_heights / 2
+# all_x_rights = all_x + all_widths
+# all_y_bottoms = all_y + all_heights
+#
+# # bbox的上下左右的坐标分布
+# image_width = 1920
+# image_height = 1208
+# left_ids = all_x_centers < image_width / 2
+# right_ids = all_x_centers >= image_width / 2
+# print(all_x.shape)
+# print(all_x_rights.shape)
+# all_x_sides = np.hstack((all_x[left_ids], all_x_rights[right_ids]))
+# top_ids = all_y_centers < image_height / 2
+# bottom_ids = all_y_centers >= image_height / 2
+# all_y_sides = np.hstack((all_y[top_ids], all_y_bottoms[bottom_ids]))
 
 
 def my_plot(data, label, name='', range=None, update_kwargs=None):
@@ -175,14 +177,14 @@ def my_plot2d(data1, data2, name1='', name2='', contour=False, data_range=None,
         plt.savefig("{}.jpg".format(name1 + '_and_' + name2 + '_contour'))
 
 
-plt.clf()
-update_kwargs = {'density': True, 'cumulative': True}
-my_plot(all_x_sides, 'all', name='x_sides_all_cum', range=None,
-        update_kwargs=update_kwargs)
-plt.clf()
-update_kwargs = {'density': True, 'cumulative': True}
-my_plot(all_y_sides, 'all', name='y_sides_all_cum', range=None,
-        update_kwargs=update_kwargs)
+# plt.clf()
+# update_kwargs = {'density': True, 'cumulative': True}
+# my_plot(all_x_sides, 'all', name='x_sides_all_cum', range=None,
+#         update_kwargs=update_kwargs)
+# plt.clf()
+# update_kwargs = {'density': True, 'cumulative': True}
+# my_plot(all_y_sides, 'all', name='y_sides_all_cum', range=None,
+#         update_kwargs=update_kwargs)
 
 # plot
 # plt.clf()
@@ -242,10 +244,10 @@ my_plot(all_y_centers, 'all', name='y_center_all_cum', range=None,
         update_kwargs=update_kwargs)
 '''
 
-# plt.clf()
-# update_kwargs = {}
-# my_plot(all_widths, 'all', name='all_widths', range=None,
-#         update_kwargs=update_kwargs)
+plt.clf()
+update_kwargs = {}
+my_plot(all_widths, 'all', name='all_widths', range=None,
+        update_kwargs=update_kwargs)
 #
 # plt.clf()
 # my_plot(all_widths, 'all', name='all_widths_range', range=(0, 400),
@@ -256,9 +258,9 @@ my_plot(all_y_centers, 'all', name='y_center_all_cum', range=None,
 # my_plot(all_widths, 'all', name='width_all_cum', range=None,
 #         update_kwargs=update_kwargs)
 #
-# plt.clf()
-# my_plot(all_heights, 'all', name='all_heights', range=None,
-#         update_kwargs=update_kwargs)
+plt.clf()
+my_plot(all_heights, 'all', name='all_heights', range=None,
+        update_kwargs=update_kwargs)
 #
 # plt.clf()
 # my_plot(all_heights, 'all', name='all_heights_range', range=(0, 10000),
@@ -273,15 +275,15 @@ my_plot(all_y_centers, 'all', name='y_center_all_cum', range=None,
 # my_plot(all_areas, 'all', name='area_all_cum', bins=30, range=(0, 10000),
 #         update_kwargs=update_kwargs)
 
-# plt.clf()
-# plt.semilogy()
-# my_plot(aspect_ratios_seq, cat_names, name='aspect_ratio_logy',
-#         range=None)
-#
-# plt.clf()
-# plt.semilogy()
-# my_plot(aspect_ratios_seq, cat_names, name='aspect_ratio_range_logy',
-#         range=(0, 4))
+plt.clf()
+plt.semilogy()
+my_plot(aspect_ratios_seq, cat_names, name='aspect_ratio_logy',
+        range=None)
+
+plt.clf()
+plt.semilogy()
+my_plot(aspect_ratios_seq, cat_names, name='aspect_ratio_range_logy',
+        range=(0, 4))
 
 # plt.clf()
 # update_kwargs = {'density': True, 'cumulative': True}

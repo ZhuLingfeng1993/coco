@@ -26,6 +26,7 @@ def visualize_dataset(imageDir, annFile):
     print('coco categories: \n{}\n'.format(' '.join(nms)))
     super_nms = set([cat['supercategory'] for cat in cats])
     print('coco supercategories: \n{}\n'.format(' '.join(super_nms)))
+    coco.printCatNums()
 
     # get all images containing given categories, select one at random
     catIds = coco.getCatIds(catNms=nms)
@@ -41,14 +42,14 @@ def visualize_dataset(imageDir, annFile):
     while True:
         # randomly pick one image
         imgId = imgIds[np.random.randint(len(imgIds))]
-        print(imgId)
+        # print(imgId)
         img = coco.loadImgs(imgId)[0]
         # I = io.imread(img['file_name'])
         # print(I.shape)
         # I = io.imread('%s/images/%s/%s'%(dataDir,dataType,img['file_name']))
         # I = io.imread("{}".format(img['file_name']))
-        print(img['file_name'])
-        print(os.path.join(imageDir, img['file_name']))
+        # print(img['file_name'])
+        # print(os.path.join(imageDir, img['file_name']))
 
         I = Image.open(os.path.join(imageDir, img['file_name']))
         print(img['file_name'])
